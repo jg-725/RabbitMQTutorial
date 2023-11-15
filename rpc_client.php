@@ -4,13 +4,13 @@ require_once __DIR__ . '/vendor/autoload.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class FibonacciRpcClient
+class LoginRpcClient
 {
-	private $connection;
-	private $channel;
-	private $callback_queue;
-	private $response;
-	private $corr_id;
+	private $connection;		// Holds AMQP connection
+	private $channel;		// Channel instance holder for connection
+	private $callback_queue;	// Queue Name
+	private $response;		// Holds response received from server
+	private $corr_id;		// Holds correlation ID from request
 
 	public function _construct()
 	{
@@ -20,6 +20,7 @@ class FibonacciRpcClient
 			'guest',
 			'guest',
 		);
+		// 
 		$this->channel = $this->connection->channel();
 		list($this->callback_queue, ,) = $this->channel->queue_declare(
 			"",

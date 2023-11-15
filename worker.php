@@ -20,12 +20,18 @@ $callback = function ($msg) {
 $channel->basic_qos(null, 1, false);
 $channel->basic_consume('login_queue', '', false, false, false, false, $callback);
 
+
+while (count($channel->callbacks)) {
+	$channel->wait();
+
+}
+/*
 try {
 	$channel->consume();
 } catch (\Throwable $exception) {
 	echo $exception->getMessage();
 }
-
+*/
 $channel->close();
 $connection->close();
 ?>

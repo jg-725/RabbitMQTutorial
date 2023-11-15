@@ -5,6 +5,7 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
 $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+
 $channel = $connection->channel();
 
 $channel->queue_declare('rpc_queue', false, false, false, false);
@@ -23,14 +24,19 @@ function fib($n)
 echo " [x] Awaiting RPC requests\n";
 
 $callback = function($req) {
+
 	$n = intval($req->getBody());
+	
 	echo ' [.] fib(', $n, ")\n";
 
+	$result = fib($n);	
+	
 	$msg = new AMQPMessage(
-		(string) fib($n),
+		(string) $result,
 		array('correlation_id' => $req->get('correlation_id'))
 	);
-
+	
+	// Sending result back to client
 	$req->getChannel()->basic_publish(
 		$msg,
 		'',
@@ -39,15 +45,15 @@ $callback = function($req) {
 	$req->ack();
 };
 
-$channel->basic_qos(null, 1, false);
+// Channel handles one request at a time
+$channel->basic_qos(null, 1, null;
 
+// Create channel that will consume messages from queue 
 $channel->basic_consume('rpc_queue', '', false, false, false, false, $callback);
 
-try {
-	$channel->consume();
-} catch (\Throwable $exception) {
-	echo $exception->getMessage();
-
+// While condition that waits for all incoming messages to be received and consumed while channel is open 
+while ($channel->is_open()) {
+	$channel->wait;
 }
 
 $channel->close();

@@ -16,8 +16,9 @@ $callback = function ($msg) {
 
 $channel->basic_consume('Login Queue', '', false, true, false, false, $callback);
 
-while ($channel->is_open()) {
-    $channel->wait();
+while (count($channel->callbacks)) {
+	
+	$channel->wait();
 }
 
 $channel->close();
